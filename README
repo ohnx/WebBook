@@ -1,0 +1,11 @@
+This is an extension for the web browser Google Chrome. 
+
+It provides the facility of highlighting important parts of a web page while reading on the web. Once the reader is done reading and highlighting, they can press the browserAction button of the extension to send the highlighting information to a secure remote server. The server stores this information for all users (who are linked using their Gmail or Facebook Accounts).
+
+Using this information, the extension provide two very useful facilities:
+
+	1. When the user opens the same webpage at a later point in time, they find the page highlighted as they had left it the last time, the information for which is fetched from the remote server.
+
+	2. The user can also see a summarized view of the important parts of that webpage that were marked by other users using the same extension. This view is provides in the form of a heat map. The more heated (darker) a part of the webpage, more has that part been highlighted by other users of the extension.
+
+The current state of the code provides the facility of highlighting while reading, and sending the data to the remote server, but does not show the last highlighted portions of the page. Also, the functionality of heat maps remains.
