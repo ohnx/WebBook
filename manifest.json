@@ -7,12 +7,18 @@
     "default_icon": "icon.png"
   },
   "background": {
-  	"scripts": ["background.js"]
+  	"page": "background.html"
   },
   "permissions": [
     "http://*/*",
     "https://*/*",
     "contextMenus",
     "tabs"
+  ],
+  "web_accessible_resources": [
+  	"chrome_ex_oauth.html",
+  	"chrome_ex_oauthsimple.js",
+  	"chrome_ex_oauth.js",
+  	"onload.js"
   ]
 }
