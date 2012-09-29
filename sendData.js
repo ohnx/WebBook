@@ -1,3 +1,6 @@
+alert('sendData.js');
+
+/*
 var docText = document.body.innerHTML;
 var xmlhttp = new XMLHttpRequest();
 xmlhttp.open('get', "http://172.16.25.171/webBook/getData.php?docText=" + docText, true);
@@ -7,4 +10,6 @@ xmlhttp.onreadystatechange = function(){
 		alert(xmlhttp.responseText);
 	}
 };
+*/
+
 
