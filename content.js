@@ -1,6 +1,7 @@
 //alert('content.js running for WebBook');
 function highlightSelection(){
-	var selection = window.getSelection();
+	var selection = document.getSelection();
+	selectionText = selection.toString();
 	if(selection.toString().length == 0){
 		return;
 	}
@@ -9,12 +10,20 @@ function highlightSelection(){
 	alert(range.startOffset + "#" + range.endOffset);
 	var markerEl = document.createElement("span");
 	var selectionContents = range.extractContents();
-	markerEl.id = range.startOffset + "#" + range.endOffset;
+	markerEl.id = "WebBook" + range.startOffset + "#" + range.endOffset;
 	markerEl.setAttribute('name', "WebBookElement");
-	markerEl.setAttribute('onclick', "this.style.background = ''");
+//	markerEl.setAttribute('onclick', "this.style.background = ''");
+//	var nodeText = document.createTextNode(selectionContents);
+	var onclickCode = "var nodeText = document.createTextNode('" + selectionText + "'); this.parentNode.replaceChild(nodeText, this)";
+	alert(onclickCode);
+	markerEl.setAttribute('onclick', onclickCode);
 	markerEl.style.background = "red";
 	markerEl.appendChild(selectionContents);
 	range.insertNode(markerEl);
+}
+
+function sendDataResponse(response){
+	alert(response);
 }
 
 function sendData(){
@@ -32,12 +41,12 @@ function sendData(){
 		alert(wbel_text);
 	}
 	alert(wbels_str);
-	chrome.extension.sendRequest({"data":wbels_str, "page_url":page_url});
+	chrome.extension.sendRequest({"senderScript":"content", "data":wbels_str, "page_url":page_url}, sendDataResponse);
 //	chrome.extension.sendRequest({"data":docText, "page_url":page_url});
 }
 
 function performAction(e){
-	var unicode=e.charCode? e.charCode : e.keyCode
+	var unicode=e.charCode? e.charCode : e.keyCode;
 	var actualkey=String.fromCharCode(unicode);
 	
 	if (actualkey == 'h'){
@@ -48,7 +57,5 @@ function performAction(e){
 	}
 }
 
-if(document.onkeypress){}
-else{
-	document.addEventListener('keypress', performAction);
-}
+document.addEventListener('keypress', performAction);
+alert('keypress listener added');

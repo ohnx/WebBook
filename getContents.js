@@ -1,15 +1,12 @@
-var url = "http://172.16.25.171/webBook/sendData.php";
-var pageurl = document.location.pathname;
-var args = "pageurl=" + pageurl;
+var page_url = document.location.pathname;
+var args = "userGId=" + "x" + "&" + "pageurl=" + page_url;
 alert(args);
 
-var xmlhttp = new XMLHttpRequest();
-xmlhttp.open("get", url + "?" + args, true);
-xmlhttp.onload = highlightPage;
-xmlhttp.send();
+chrome.extension.sendRequest({"senderScript":"getContents", "page_url":page_url}, highlightPage);
 
-function highlightPage(){
-	var wbels_str = xmlhttp.responseText;
+function highlightPage(bgResponse){
+//	var wbels_str = xmlhttp.responseText;
+	var wbels_str = bgResponse;
 	if(wbels_str == "")
 		return;
 		
@@ -42,7 +39,9 @@ function highlightPage(){
 	var docText = document.body.innerHTML;
 	for(var i = 0; i < wbels.length; i++){
 		docText = docText.substring(0,wbels[i].end_pos) + "</span>" + docText.substring(wbels[i].end_pos);
-		docText = docText.substring(0,wbels[i].start_pos) + "<span name=\"WebBookElement\" style=\"background:red\" onclick=\"this.style.background=''\">" + docText.substring(wbels[i].start_pos);
+		var onclickCode = "var nodeText = document.createTextNode('" + docText.substring(wbels[i].start_pos, wbels[i].end_pos) + "'); this.parentNode.replaceChild(nodeText, this)";
+		alert("onclickCode : " + onclickCode);
+		docText = docText.substring(0,wbels[i].start_pos) + "<span name=\"WebBookElement\" style=\"background:red\" onclick=\"" + onclickCode + "\">" + docText.substring(wbels[i].start_pos);
 	}
 
 	alert(docText);
