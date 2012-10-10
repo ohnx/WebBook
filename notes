@@ -1,30 +1,54 @@
 How to use OpenAuth
 ===================
 
-send data transfer request using AJAX to server. If server does not find the session set, then it does not save the data and sends a -1 response to the AJAX call. The client side Javascript (content.js), on receiving the negative response opens a new tab in the browser to a server script that calls the OAuth API. The API authenticates the user and calls the callback URL in the same tab. The callback URL php script creates a session for the user and closes the tab using Javascript. Once the session is created, further AJAX calls will not receive negative response.
+Look at the OAuth tutorial on chrome developers tutorial site
 
 problems
 ========
 
-1. The google js file is not getting included from the remote server [Solved]
+1. The google js file is not getting included from the remote server
+
+[Solved]
+
+	Inclusion of external files is not allowed by Chrome's security policy. But now doing this is no longer a problem. Chrome itself provides an OAuth library which can be included in the extension package itself.
+
 
 Known Bugs
 ==========
 
-1. two event listeners get added every time; so everything occurs twice. The span tag for highlighting the text on pressing 'h' is added twice, and thus sent twice on pressing 's'. Even if the span tag is added once, the data is sent twice on pressing 's'.
+1(a) two event listeners get added every time; so everything occurs twice. The span tag for highlighting the text on pressing 'h' is added twice, and thus sent twice on pressing 's'. Even if the span tag is added once, the data is sent twice on pressing 's'.
 
-2. Sometimes the data being sent is wrong. While sending (on pressing 's'), the data sent is not <start_pos>:<highlighted text> but <start_pos>:<"<span id='">. These are probably the instances when on pressing 'h', the span tag get added twice in a nested fashion.
+1(b) Sometimes the data being sent is wrong. While sending (on pressing 's'), the data sent is not <start_pos>:<highlighted text> but <start_pos>:<"<span id='">. These are probably the instances when on pressing 'h', the span tag get added twice in a nested fashion.
 
 *so basically for the above two bugs, we need to resolve the problem of 2 event listeners getting added.
 
-3. When the user opens an already highlighted page and submits it (presses 's') again, the entire data is sent once again and all the entries which were already in the databases (i.e. for the part that was highlighted earlier) get duplicated. A solution for this could be to keep only one row in the database for each URI and keep the data for that URL in a concatenated form and simply update the row when the page is submitted the next time. To differentiate between the highlights of a particular user from the combined highlightings of all users for a page, we could probably maintain separate rows for all users for a URL (but all of them in a concatenated form only)
+[Solved]
+	
+	earlier the page was getting kind of getting updated twice when a new tab was opened or if the page was reloaded twice. The update listener was being called once even before the page got loaded completely and once after it got loaded completely. So adding a condition to check if the page was entirely loaded before calling the scripts getContents.js and content.js solved the problems
 
-4. when the user clicks on a highlighted portion to remove that highlight, the color is removed but the span tag remains. This creates the problem of intersecting/overlapping span tags. So, find a way a to remove the entire span tag itself. If no other elegant solution exists, a solution to this could be same as that used for hightlihting a page when it is opened for the second time, that is, read the entire document.body.innerHTML, and replace the concerned span tag with the plain text.
+2. When the user opens an already highlighted page and submits it (presses 's') again, the entire data is sent once again and all the entries which were already in the databases (i.e. for the part that was highlighted earlier) get duplicated. A solution for this could be to keep only one row in the database for each URI and keep the data for that URL in a concatenated form and simply update the row when the page is submitted the next time. To differentiate between the highlights of a particular user from the combined highlightings of all users for a page, we could probably maintain separate rows for all users for a URL (but all of them in a concatenated form only)
 
-5. Also when the user makes two highlights which are overlapping, the problem of overlapping span tags is once again introduced. So either combine them into one or make them disjoint/separated at some point in text.
+[Solved]
+	
+	solved using the solution suggested along with the problem itself
 
-6. when the user makes a highlight across elements such as <p> or <div> etc, undesirable results are achieved. In this case the span tag wraps the corresponding <div> or <div> .. </div> or </div> tags etc., which is not allowed according to HTML's syntax.
+3. when the user clicks on a highlighted portion to remove that highlight, the color is removed but the span tag remains. This creates the problem of intersecting/overlapping span tags. So, find a way a to remove the entire span tag itself. If no other elegant solution exists, a solution to this could be same as that used for hightlihting a page when it is opened for the second time, that is, read the entire document.body.innerHTML, and replace the concerned span tag with the plain text.
+
+[Solved]
+
+	solved using the replaceChild property for DOM in Javascript
+
+4. Also when the user makes two highlights which are overlapping, the problem of overlapping span tags is once again introduced. So either combine them into one or make them disjoint/separated at some point in text.
+
+5. when the user makes a highlight across elements such as <p> or <div> etc, undesirable results are achieved. In this case the span tag wraps the corresponding <div> or <div> .. </div> or </div> tags etc., which is not allowed according to HTML's syntax.
+
+6. Some pages insert images in the middle of a text to insert some special characters or equations which cannot be inserted using HTML. But these when highlighted introduces tags in the highlighted part as well in the text for the text node in the onclick attribute of the highlighted part.
+
+***each of 4, 5 and 6 can be solved by giving a prior instruction to the user that highlighting in these ways is not allowed.
+***Even if the user does highlight in these ways, popup a notice saying this is not allowed.
+***A solution could be to parse the page each time the user makes a highlight and automatically separate the overlapping highlights or highlights spanning across <div> or <p> tags etc or highlights containing an image.
+
 
 7. The data needs to be stored with a better scheme as in the current scheme, the index position has been observed to be shifting.
 
-8. Some pages insert images in the middle of a text to insert some special characters or equations which cannot be inserted using HTML. But these when highlighted introduces tags in the highlighted part as well in the text for the text node in the onclick attribute of the highlighted part.
+
