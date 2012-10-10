@@ -51,4 +51,12 @@ Known Bugs
 
 7. The data needs to be stored with a better scheme as in the current scheme, the index position has been observed to be shifting.
 
+[Solved]
 
+	now the data being stored for each highlight is <occurence number, highlighted text>
+
+8. The keys used for various actions like highlighting data or sending data etc can't be single letter-keys as a person might use them for typing on a page. So they can be either control + key etc or use context menus. But using context menu every time may be tedious for a user, so better have Ctrl + key.
+
+[Solved]
+
+	solved using ctrl+m for highlighting and ctrl+b for sending data.

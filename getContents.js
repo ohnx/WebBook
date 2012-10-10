@@ -12,11 +12,34 @@ function highlightPage(bgResponse){
 		
 		
 	alert('data received successfully' + " " + wbels_str);
+	// split the formatted string of different highlights into an array
 	var wbels = wbels_str.split("|");
-	
+	// since wbels_str ends with a "|", the last element would be blank
 	wbels.pop();
+	//alert("number of elements : " + wbels.length);
 	
-	// sort all the elements by start position decreasing //
+	var docText = document.body.innerHTML;
+	// using the occurence information, find the starting and ending index positions of each highlight //
+	// convert each highlight in the array into an Object
+	for(var i = 0; i < wbels.length; i++){
+		var wbel_arr = wbels[i].split(":");
+		wbels[i] = new Object();
+		wbels[i].occur_no = wbel_arr[0];
+		wbels[i].text = wbel_arr[1];
+		wbels[i].start_pos = 0;
+		wbels[i].end_pos = 0;
+		alert("start_pos : " + wbels[i].start_pos + " | " + "occur_no : " + wbels[i].occur_no + " | " + "text : " + wbels[i].text + " | " + "end_pos : " + wbels[i].end_pos);
+		var occur_no = 1;
+		while(occur_no <= wbels[i].occur_no){
+			wbels[i].start_pos = docText.indexOf(wbels[i].text, wbels[i].end_pos);
+			wbels[i].end_pos = wbels[i].start_pos + parseInt(wbels[i].text.length);
+			occur_no++;
+		}
+		alert("start_pos : " + wbels[i].start_pos + " | " + "text : " + wbels[i].text + " | " + "end_pos : " + wbels[i].end_pos);
+	}
+	
+	// we need to insert the span tags in between the document text. But we need to do that from last to beginning of the text else the index positions will change //
+	// sort all the elements by start position in decreasing order //
 	for(var i = 0; i < wbels.length; i++){
 		for(j = i; j < wbels.length; j++){
 			if(wbels[j].start_pos > wbels[i].start_pos){
@@ -27,16 +50,6 @@ function highlightPage(bgResponse){
 		}
 	}
 	
-	for(var i = 0; i < wbels.length; i++){
-		var wbel_arr = wbels[i].split(":");
-		wbels[i] = new Object();
-		wbels[i].start_pos = wbel_arr[0];
-		wbels[i].text = wbel_arr[1];
-		wbels[i].end_pos = parseInt(wbels[i].start_pos) + parseInt(wbels[i].text.length);
-		alert("start_pos : " + wbels[i].start_pos + " | " + "text : " + wbels[i].text + " | " + "end_pos : " + wbels[i].end_pos);
-	}
-	
-	var docText = document.body.innerHTML;
 	for(var i = 0; i < wbels.length; i++){
 		docText = docText.substring(0,wbels[i].end_pos) + "</span>" + docText.substring(wbels[i].end_pos);
 		var onclickCode = "var nodeText = document.createTextNode('" + docText.substring(wbels[i].start_pos, wbels[i].end_pos) + "'); this.parentNode.replaceChild(nodeText, this)";
