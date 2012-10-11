@@ -20,11 +20,15 @@ Algorithm to highlight a range object
 
 */
 
+var level = 0;
 var start = 0;
 var end = 0;
 var startOffset = 0;
 var endOffset = 0;
+var startContainer = new Object();
+var endContainer = new Object();
 var curRange = document.createRange();
+
 
 function highlightSelection(){
 	var docText = document.body.innerHTML;
@@ -63,16 +67,25 @@ function highlightSelection(){
 		// (A) recursive function //
 		startOffset = range.startOffset;
 		endOffset = range.endOffset;
+		start = 0;
+		end = 0;
+		level = 0;
+		curRange.collapse();
+		
+		alert("highlighting the complete tree");
 		highlightTree(P);
 	}
 }
 
 function highlightTree(root){
+	//alert("level : " + level);
+	//alert("innerHTML : " + root.innerHTML);
 	if(end){
 		return;
 	}
 
-	if(root = startContainer){
+	if(root == startContainer){
+		alert('startContainer reached');
 		start = 1;
 		curRange.setStart(root, startOffset);
 		curRange.setEndAfter(root);
@@ -80,19 +93,37 @@ function highlightTree(root){
 	}
 	
 	if(root == endContainer){
+		alert('endContainer reached');
 		end = 1;
 		curRange.setEnd(root, endOffset);
-		highlightRange(curRange);
+		if (!curRange.collapsed){
+			highlightRange(curRange);
+		}
 		return;
 	}
 	
 	// if current element is a text node, then simply add it to curRange //
-	if(start && root.nodeType == 3){
-		curRange.setEndAfter(root);
+	if(start && !end && root.nodeType == 3){
+		if(root.data.length > 1){
+			alert('concatenating text node : length : ' + root.data.length + ' | text : ' + root.data);
+			curRange.setEndAfter(root);
+			alert('current range contents : ' + curRange.toString());
+		}
 	}
 	
-	// if the current element is a <p> or <div> then highlight current range object and start another one //
-	if(start && (root.nodeName == "P" || root.nodeName == "DIV" || (root.nodeName == "SPAN" && root.name == "WebBookElement"))){
+	if(start && !end && (root.nodeName == "SPAN" && root.getAttribute('name') == "WebBookElement")){
+		alert('ignoring WebBookElement');
+		if (!curRange.collapsed){
+			highlightRange(curRange);
+		}
+		curRange = document.createRange();
+		curRange.setStartAfter(root, 0);
+		curRange.setEndAfter(root, 0);
+		return;
+	}
+	
+	if(start && !end && (root.nodeName == "P" || root.nodeName == "DIV")){
+		alert('breaking at beginning of a new ' + root.nodeName + ' and highlighting curRange | curRange endContainer : ' + curRange.endContainer.nodeName);
 		if (!curRange.collapsed){
 			highlightRange(curRange);
 		}
@@ -100,14 +131,32 @@ function highlightTree(root){
 		curRange.setStart(root, 0);
 		curRange.setEnd(root, 0);
 	}
-	if(root.nodeName == "SPAN" && root.name == "WebBookElement"){
-		return;
+
+	//alert('beginning to iterate children');
+	var rootChildren = root.childNodes;
+	//alert('number of children : ' + rootChildren.length);
+	for(var i = 0; i < rootChildren.length; i++){
+		level++;
+		highlightTree(rootChildren[i]);
 	}
-	
-	var childNodes = root.childNodes();
-	for(var i = 0; i < childNodes.length; i++){
-		highlightTree(childNodes[i]);
-	}	
+
+	// if the current element is a <p> or <div> then highlight current range object and start another one //
+	if(start && !end && (root.nodeName == "P" || root.nodeName == "DIV")){
+		alert('breaking at the end of a running ' + root.nodeName + ' and highlighting curRange | curRange endContainer : ' + curRange.endContainer.nodeName);
+		if (!curRange.collapsed){
+			highlightRange(curRange);
+		}
+		curRange = document.createRange();
+		curRange.setStartAfter(root, 0);
+		curRange.setEndAfter(root, 0);
+	}
+	if(start && !end && (root.nodeName == "SPAN" && root.getAttribute('name') == "WebBookElement")){
+		alert('ignoring WebBookElement');
+		curRange.setStartAfter(root);
+		curRange.setEndAfter(root);
+	}
+
+	level--;
 }
 
 function parents(node) {
@@ -134,6 +183,9 @@ function highlightRange(range){
 	var markerEl = document.createElement("span");
 	markerEl.id = "WebBook" + range.startOffset + "#" + range.endOffset;
 	markerEl.setAttribute('name', "WebBookElement");
+	var rangeHTML = getRangeHTML(range);
+	var onclickCode = getRangeCode(range);
+	//alert(onclickCode);
 	var onclickCode = "var nodeText = document.createTextNode('" + range.toString() + "'); this.parentNode.replaceChild(nodeText, this)";
 	alert(onclickCode);
 	markerEl.setAttribute('onclick', onclickCode);
@@ -149,23 +201,52 @@ function highlightRange(range){
 	range.insertNode(markerEl);
 }
 
-function dispRangeChildren(range){
+function getRangeHTML(range){
 	var rangeChildren = range.cloneContents().childNodes;
-	alert('range number of children : ' + rangeChildren.length);
+	var rangeHTML = "";
 	for(var i = 0; i < rangeChildren.length; i++){
 		switch(rangeChildren[i].nodeType){
 			case 1: 
-			alert('element node : name : ' + rangeChildren[i].nodeName);
-			alert("child number " + i + " html text : " + rangeChildren[i].innerHTML);
-			alert("child number " + i + "parent html text : " + rangeChildren[i].parentNode.innerHTML);
+			rangeHTML = rangeHTML + rangeChildren[i].outerHTML;
 			break;
 
 			case 3:
-			alert('text node');
-			alert("child number " + i + " text : " + rangeChildren[i].data);
+			rangeHTML = rangeHTML + rangeChildren[i].data;
 			break;
 		}
 	}
+	return rangeHTML;
+}
+
+function getRangeCode(range){
+	var rangeCode = "var parent = this.parentNode;";
+	
+	var rangeChildren = range.cloneContents().childNodes;
+	var nChildren = rangeChildren.length;
+	var nodeNext = rangeChildren[nChildren - 1];
+	if (nodeNext.nodeType == 3){
+		rangeCode = rangeCode + "var nodeNext = document.createTextNode('" + nodeNext.data + "');parent.replaceChild(nodeNext, this);var prevChild=nodeNext;";
+	}
+	else{
+		rangeCode = rangeCode + "var nodeNext = document.createElement('" + nodeNext.nodeName + "');nodeNext.outerHTML='" + nodeNext.outerHTML + "';parent.replaceChild(nodeNext, this);var prevChild=nodeNext;";
+	}
+	
+	var prevChild = nodeNext;
+	for(var i = nChildren - 2; i >= 0; i--){
+		nodeNext = rangeChildren[i];
+		switch(rangeChildren[i].nodeType){
+			case 1:
+			rangeCode = rangeCode + "nodeNext = document.createTextNode('" + nodeNext.data + "');parent.inserBefore(nodeNext, prevChild);prevChild = nodeNext;";
+			prevChild = nodeNext;			
+			break;
+
+			case 3:
+			rangeCode = rangeCode + "nodeNext = document.createElement('" + nodeNext.nodeName + "');nodeNext.outerHTML='" + nodeNext.outerHTML + "';parent.inserBefore(nodeNext, prevChild);prevChild = nodeNext;";
+			prevChild = nodeNext;
+			break;
+		}
+	}
+	return rangeCode;
 }
 
 function sendDataResponse(response){
@@ -203,21 +284,28 @@ function sendData(){
 		var wbel_text = wbel.innerHTML;
 		alert(wbel_text);
 		var done = 0;
-		var occur_no = 0;
+		var occur_no = 1;
 		var start_index = 0;
 		while(!done){
-			var end_pos = docText.indexOf(wbel_text, start_index) + wbel_text.length;
+			var start_pos = docText.indexOf(wbel_text, start_index);
+			var end_pos = start_pos + wbel_text.length;
 			alert(docText.substring(end_pos, parseInt(end_pos) + 7));
 			if(docText.substring(end_pos, parseInt(end_pos) + 7) == "</span>"){
 				alert("occur no : " + occur_no);
 				wbels_str = wbels_str + occur_no + ":" + wbel_text + "|";
 				done = 1;
 			}
-			occur_no++;
+			alert(docText.substring(start_pos - 16, start_pos - 2));
+			if(docText.substring(start_pos - 16, start_pos - 2) != "createTextNode"){
+				occur_no++;
+			}
 			start_index = end_pos;
 		}
 	}
 	alert(wbels_str);
+	if(wbels_str == ""){
+		return;
+	}
 	chrome.extension.sendRequest({"senderScript":"content", "data":wbels_str, "page_url":page_url}, sendDataResponse);
 //	chrome.extension.sendRequest({"data":docText, "page_url":page_url});
 }

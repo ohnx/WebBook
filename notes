@@ -50,6 +50,10 @@ Known Bugs
 	(a) don't bother during highlighting, but when the data is sent to the server, either the client script or the server script can format the data properly and separate highlightings before storing in the database. Since during formatting and separation, the original occur_no may change, this might not be possible to be done on the server side.
 	(b) don't bother during storing. When the data is retrieved, do the formatting and separation in getContents.js
 
+[Solved]
+
+	when the user highlights the data, highlight each part of the range object separately by traversing the entire tree which completely contains the range Document Fragment; basically the tree under the lowest common ancestor of the startContainer and the endContainer elements.
+	
 7. The data needs to be stored with a better scheme as in the current scheme, the index position has been observed to be shifting.
 
 [Solved]
