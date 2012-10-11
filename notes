@@ -79,3 +79,5 @@ Known Bugs
 12. Currently if the extension is enabled in the middle of a session, one needs to reload all the tabs in order to add keypress listeners on each tab (i.e. activate the extension on each tab). One solution could be to browse all open tabs and add the listeners to all of them when the extension is loaded.
 
 13. text inside <input>, <select> and <textarea> can still not be selected using window.getSelection()
+
+14. currently, clicking on a highlight replaces that span element by a text node the contents of which are range.toString(). But range.toString() gives a plaintext string whereas the contents inside the highlight's span tag may not be just text. It may have various children like formatting tags, text nodes, other span tags etc. And the highlight must be replaced by exactly that content on its removal.
