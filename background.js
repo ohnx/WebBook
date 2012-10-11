@@ -19,11 +19,13 @@ function getServer(text){
 
 	var url = "http://172.16.25.171/webBook/sendData.php";
 	var args = "?" + "userGId=" + userData.id + "&" + "pageurl=" + page_url;
-	alert(args);
+//	alert(args);
 
 	var xmlhttp = new XMLHttpRequest();
 	xmlhttp.open("get", url + encodeURI(args), true);
-	xmlhttp.onload = function(){alert('data received successfully'); responseFunction(xmlhttp.responseText);};
+	xmlhttp.onload = function(){//alert('data received successfully');
+		responseFunction(xmlhttp.responseText);
+	};
 	xmlhttp.send();
 }
 
@@ -32,7 +34,7 @@ function sendServer(text){
 
 	var url = "http://172.16.25.171/webBook/getData.php";
 	var args = "?" + "userGId=" + userData.id + "&" + "pageurl=" + page_url + "&" + "docText=" + docText;
-	alert(args);
+//	alert(args);
 
 	var xmlhttp = new XMLHttpRequest();
 	xmlhttp.open("get", url + encodeURI(args), true);
@@ -42,8 +44,8 @@ function sendServer(text){
 
 
 function onUserInfo(text, xhr){
-	alert('user information received');
-	alert(text);
+//	alert('user information received');
+//	alert(text);
 	if(senderScript == "content"){
 		sendServer(text);
 	}
@@ -53,7 +55,7 @@ function onUserInfo(text, xhr){
 }
 
 function onAuthorize(){
-	alert('user authorized');
+//	alert('user authorized');
 	var url = "https://www.googleapis.com/oauth2/v1/userinfo";
     oauth.sendSignedRequest(url, onUserInfo, {
       'parameters' : {
@@ -66,7 +68,7 @@ function onAuthorize(){
 }
 
 function gAuthorize() {
-	alert('browserAction Clicked');
+//	alert('authorization initiated');
 //	if(oauth.hasToken()){
 //		//alert('token already present');
 //		chrome.tabs.executeScript(null, {file:"sendData.js", allFrames:true});		
@@ -81,12 +83,12 @@ function handleRequest(request, sender, sendResponse){
 	responseFunction = sendResponse;
 	if(senderScript == "getContents"){
 		page_url = request.page_url;
-		alert("request from getContents.js : page_url : " + page_url);
+//		alert("request from getContents.js : page_url : " + page_url);
 	}
 	else if(senderScript == "content"){
 		docText = request.data;
 		page_url = request.page_url;
-		alert("request from content.js : docText : " + docText + " | " + "page_url : " + page_url);
+//		alert("request from content.js : docText : " + docText + " | " + "page_url : " + page_url);
 	}
 	
 	gAuthorize();
@@ -98,7 +100,7 @@ function activateHighlighter(tabId, changeInfo, tab) {
 //	chrome.tabs.executeScript(null, {code:"document.body.bgColor = 'red';"});
 	
 	if(tab.url != "undefned" && changeInfo.status == "complete"){
-		alert('activateHighlighter called');
+	//	alert('activateHighlighter called');
 		chrome.tabs.executeScript(null, {file:"getContents.js", allFrames:true});
 		chrome.tabs.executeScript(null, {file:"content.js", allFrames:true});
 	}
@@ -109,7 +111,7 @@ chrome.browserAction.onClicked.addListener(gAuthorize);
 
 chrome.tabs.onUpdated.addListener(activateHighlighter);
 //chrome.tabs.executeScript(null, {code:"alert('onUpdate listener activateHighlighter added')"});
-alert('onUpdate listener activateHighlighter added');
+//alert('onUpdate listener activateHighlighter added');
 //chrome.tabs.onCreated.addListener(activateHighlighter);
 chrome.extension.onRequest.addListener(handleRequest);
 

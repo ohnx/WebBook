@@ -47,16 +47,31 @@ Known Bugs
 ***each of 4, 5 and 6 can be solved by giving a prior instruction to the user that highlighting in these ways is not allowed.
 ***Even if the user does highlight in these ways, popup a notice saying this is not allowed.
 ***A solution could be to parse the page each time the user makes a highlight and automatically separate the overlapping highlights or highlights spanning across <div> or <p> tags etc or highlights containing an image.
-
+	(a) don't bother during highlighting, but when the data is sent to the server, either the client script or the server script can format the data properly and separate highlightings before storing in the database. Since during formatting and separation, the original occur_no may change, this might not be possible to be done on the server side.
+	(b) don't bother during storing. When the data is retrieved, do the formatting and separation in getContents.js
 
 7. The data needs to be stored with a better scheme as in the current scheme, the index position has been observed to be shifting.
 
 [Solved]
 
 	now the data being stored for each highlight is <occurence number, highlighted text>
+	
+8. The current algo only checks if there is a closing span tag after the found text i.e. </span>. But this is not sufficient as the span tag maybe present in the page by the creator also and not just by the extension. A solution could be to check first of all that the span is actually "WebBook" element by checking the opening <span> tag. Also, if too same pieces of text have been highlighted, then we may need to check the "id" attribute as well of <span> tag.
 
-8. The keys used for various actions like highlighting data or sending data etc can't be single letter-keys as a person might use them for typing on a page. So they can be either control + key etc or use context menus. But using context menu every time may be tedious for a user, so better have Ctrl + key.
+9. The keys used for various actions like highlighting data or sending data etc can't be single letter-keys as a person might use them for typing on a page. So they can be either Ctrl+key etc or use context menus. But using context menu every time may be tedious for a user, so better have Ctrl+key.
 
 [Solved]
 
-	solved using ctrl+m for highlighting and ctrl+b for sending data.
+	solved using Ctrl+m for highlighting and Ctrl+b for sending data.
+	
+10. A user may make several highlights by using the control key. All highlights (ranges) should be highlighted in this case.
+
+[Solved]
+
+	solved by traversing all the selected ranges in the window.getSelection() object
+	
+11. provide facility for Ctrl+z etc
+
+12. Currently if the extension is enabled in the middle of a session, one needs to reload all the tabs in order to add keypress listeners on each tab (i.e. activate the extension on each tab). One solution could be to browse all open tabs and add the listeners to all of them when the extension is loaded.
+
+13. text inside <input>, <select> and <textarea> can still not be selected using window.getSelection()
