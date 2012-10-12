@@ -38,7 +38,9 @@ function sendServer(text){
 
 	var xmlhttp = new XMLHttpRequest();
 	xmlhttp.open("get", url + encodeURI(args), true);
-	xmlhttp.onload = function(){alert('data successfully transferred');};
+	xmlhttp.onload = function(){
+		//alert('data successfully transferred');
+	};
 	xmlhttp.send();
 }
 

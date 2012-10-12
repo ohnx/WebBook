@@ -41,27 +41,28 @@ function highlightSelection(){
 	
 	// traverse over all the ranges in the selection //
 	var no_ranges = selection.rangeCount;
-	alert("no of ranges : " + no_ranges);
+	//alert("no of ranges : " + no_ranges);
 	for(var range_no = 0; range_no < no_ranges; range_no++){
 		var range = selection.getRangeAt(range_no);
-		alert("range plaintext : " + range.toString());
+		//alert("range plaintext : " + range.toString());
 		
 		// get the starting and ending text nodes //
 		startContainer = range.startContainer;
 		endContainer = range.endContainer;
 
 		if (startContainer.nodeType != 3 || endContainer.nodeType != 3){
-			alert('Such a selection is not allowed. You may only select text on the page');
+			//alert('Such a selection is not allowed. You may only select text on the page');
 			return;
 		}
 
 		// debug : display the contents of the start and end containers //
-		alert('starting element : nodeType : ' + startContainer.nodeType + ' | name : ' + startContainer.nodeName + " | number of children : " + startContainer.childNodes.length + ' | text : ' + startContainer.data + " | offset : " + range.startOffset);
-		alert('end element : nodeType : ' + endContainer.nodeType + ' | name : ' + endContainer.nodeName + " | number of children : " + endContainer.childNodes.length + ' | text : ' + endContainer.data + " | offset : " + range.endOffset);
+		//alert('starting element : nodeType : ' + startContainer.nodeType + ' | name : ' + startContainer.nodeName + " | number of children : " + startContainer.childNodes.length + ' | text : ' + startContainer.data + " | offset : " + range.startOffset);
+		//alert('end element : nodeType : ' + endContainer.nodeType + ' | name : ' + endContainer.nodeName + " | number of children : " + endContainer.childNodes.length + ' | text : ' + endContainer.data + " | offset : " + range.endOffset);
 
 		// find the first common ancestor P of the start and end Containers //
+		//alert('finding the common ancestor');
 		var P = commonAncestor(startContainer, endContainer);
-		alert('common ancestor : nodeType : ' + P.nodeType + ' | name : ' + P.nodeName + " | number of children : " + P.childNodes.length + ' | text : ' + P.innerHTML);
+		//alert('common ancestor : nodeType : ' + P.nodeType + ' | name : ' + P.nodeName + " | number of children : " + P.childNodes.length + ' | text : ' + P.innerHTML);
 
 		// traverse the tree under P and highlight all elements between start and end Container //
 		// (A) recursive function //
@@ -72,7 +73,7 @@ function highlightSelection(){
 		level = 0;
 		curRange.collapse();
 		
-		alert("highlighting the complete tree");
+		//alert("highlighting the complete tree");
 		highlightTree(P);
 	}
 }
@@ -85,15 +86,14 @@ function highlightTree(root){
 	}
 
 	if(root == startContainer){
-		alert('startContainer reached');
+		//alert('startContainer reached');
 		start = 1;
 		curRange.setStart(root, startOffset);
 		curRange.setEndAfter(root);
-		return curRange;
 	}
 	
 	if(root == endContainer){
-		alert('endContainer reached');
+		//alert('endContainer reached');
 		end = 1;
 		curRange.setEnd(root, endOffset);
 		if (!curRange.collapsed){
@@ -105,14 +105,14 @@ function highlightTree(root){
 	// if current element is a text node, then simply add it to curRange //
 	if(start && !end && root.nodeType == 3){
 		if(root.data.length > 1){
-			alert('concatenating text node : length : ' + root.data.length + ' | text : ' + root.data);
+			//alert('concatenating text node : length : ' + root.data.length + ' | text : ' + root.data);
 			curRange.setEndAfter(root);
-			alert('current range contents : ' + curRange.toString());
+			//alert('current range contents : ' + curRange.toString());
 		}
 	}
 	
 	if(start && !end && (root.nodeName == "SPAN" && root.getAttribute('name') == "WebBookElement")){
-		alert('ignoring WebBookElement');
+		//alert('ignoring WebBookElement');
 		if (!curRange.collapsed){
 			highlightRange(curRange);
 		}
@@ -123,7 +123,7 @@ function highlightTree(root){
 	}
 	
 	if(start && !end && (root.nodeName == "P" || root.nodeName == "DIV")){
-		alert('breaking at beginning of a new ' + root.nodeName + ' and highlighting curRange | curRange endContainer : ' + curRange.endContainer.nodeName);
+		//alert('breaking at beginning of a new ' + root.nodeName + ' and highlighting curRange | curRange endContainer : ' + curRange.endContainer.nodeName);
 		if (!curRange.collapsed){
 			highlightRange(curRange);
 		}
@@ -142,7 +142,7 @@ function highlightTree(root){
 
 	// if the current element is a <p> or <div> then highlight current range object and start another one //
 	if(start && !end && (root.nodeName == "P" || root.nodeName == "DIV")){
-		alert('breaking at the end of a running ' + root.nodeName + ' and highlighting curRange | curRange endContainer : ' + curRange.endContainer.nodeName);
+		//alert('breaking at the end of a running ' + root.nodeName + ' and highlighting curRange | curRange endContainer : ' + curRange.endContainer.nodeName);
 		if (!curRange.collapsed){
 			highlightRange(curRange);
 		}
@@ -151,7 +151,7 @@ function highlightTree(root){
 		curRange.setEndAfter(root, 0);
 	}
 	if(start && !end && (root.nodeName == "SPAN" && root.getAttribute('name') == "WebBookElement")){
-		alert('ignoring WebBookElement');
+		//alert('ignoring WebBookElement');
 		curRange.setStartAfter(root);
 		curRange.setEndAfter(root);
 	}
@@ -168,6 +168,9 @@ function parents(node) {
 }
 
 function commonAncestor(node1, node2) {
+	if(node1 == node2){
+		return node1;
+	}
 	var parents1 = parents(node1);
 	var parents2 = parents(node2);
 
@@ -271,7 +274,7 @@ function getRangeCode(range){
 }
 
 function sendDataResponse(response){
-	alert(response);
+	//alert(response);
 }
 
 function sendData(){
@@ -299,31 +302,28 @@ function sendData(){
 	// 2. which occurence of that text (the same text may appear more than once) is the required one
 	
 	var wbels_str = "";
-	alert("number of highlighted elements : " + wbels.length);
+	//alert("number of highlighted elements : " + wbels.length);
 	for(var i = 0; i < wbels.length; i++){
 		var wbel = wbels[i];
 		var wbel_text = wbel.innerHTML;
-		alert(wbel_text);
+		//alert(wbel_text);
 		var done = 0;
 		var occur_no = 1;
 		var start_index = 0;
 		while(!done){
 			var start_pos = docText.indexOf(wbel_text, start_index);
 			var end_pos = start_pos + wbel_text.length;
-			alert(docText.substring(end_pos, parseInt(end_pos) + 7));
+			//alert(docText.substring(end_pos, parseInt(end_pos) + 7));
 			if(docText.substring(end_pos, parseInt(end_pos) + 7) == "</span>"){
-				alert("occur no : " + occur_no);
+				//alert("occur no : " + occur_no);
 				wbels_str = wbels_str + occur_no + ":" + wbel_text + "|";
 				done = 1;
 			}
-			alert(docText.substring(start_pos - 16, start_pos - 2));
-			if(docText.substring(start_pos - 16, start_pos - 2) != "createTextNode"){
-				occur_no++;
-			}
+			occur_no++;
 			start_index = end_pos;
 		}
 	}
-	alert(wbels_str);
+	//alert(wbels_str);
 	if(wbels_str == ""){
 		return;
 	}
@@ -340,7 +340,7 @@ function keyDownHandler(e){
 
 function keyUpHandler(e){
 	if(e.which == 17){
-		alert('ctrl key up');
+		//alert('ctrl key up');
 		CTRL = false;
 	}
 }
@@ -358,16 +358,16 @@ function performAction(e){
 //	var unicode=e.charCode? e.charCode : e.keyCode;
 //	var actualkey=String.fromCharCode(e.which);
 	
-	alert("checking your key : " + e.which);
+	//alert("checking your key : " + e.which);
 
 //	if (actualkey == 'm'){
 	if(e.which == 13){
-		alert('highlighting your selection');
+		//alert('highlighting your selection');
 		highlightSelection();
 	}
 //	else if (actualkey == 'b'){
 	else if(e.which == 2){
-		alert('sending your data');
+		//alert('sending your data');
 		sendData();
 	}
 
