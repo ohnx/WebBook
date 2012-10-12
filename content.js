@@ -185,9 +185,9 @@ function highlightRange(range){
 	markerEl.setAttribute('name', "WebBookElement");
 	var rangeHTML = getRangeHTML(range);
 	var onclickCode = getRangeCode(range);
-	//alert(onclickCode);
-	var onclickCode = "var nodeText = document.createTextNode('" + range.toString() + "'); this.parentNode.replaceChild(nodeText, this)";
 	alert(onclickCode);
+	//var onclickCode = "var nodeText = document.createTextNode('" + range.toString() + "'); this.parentNode.replaceChild(nodeText, this)";
+	//alert(onclickCode);
 	markerEl.setAttribute('onclick', onclickCode);
 	markerEl.style.background = "red";
 	markerEl.style.removeProperty('background-position');
@@ -221,31 +221,51 @@ function getRangeHTML(range){
 function getRangeCode(range){
 	var rangeCode = "var parent = this.parentNode;";
 	
+	// This solution will work only if the child nodes of the WebBookElement node are same as the childNodes of the range object
 	var rangeChildren = range.cloneContents().childNodes;
 	var nChildren = rangeChildren.length;
 	var nodeNext = rangeChildren[nChildren - 1];
 	if (nodeNext.nodeType == 3){
-		rangeCode = rangeCode + "var nodeNext = document.createTextNode('" + nodeNext.data + "');parent.replaceChild(nodeNext, this);var prevChild=nodeNext;";
+		rangeCode = rangeCode 
+		+ "var nodeNext = document.createTextNode('" + nodeNext.data + "');parent.replaceChild(nodeNext, this);var prevChild=nodeNext;alert(prevChild.data);"
+		rangeCode = rangeCode 
+		+ "if(prevChild.nextSibling.nodeType==3){"
+		+ 	"prevChild.nextSibling.data = prevChild.data + prevChild.nextSibling.data;"
+		+	"prevChild = prevChild.nextSibling;"
+		+	"parent.removeChild(nodeNext);"
+		+ "}";
 	}
 	else{
-		rangeCode = rangeCode + "var nodeNext = document.createElement('" + nodeNext.nodeName + "');nodeNext.outerHTML='" + nodeNext.outerHTML + "';parent.replaceChild(nodeNext, this);var prevChild=nodeNext;";
+		rangeCode = rangeCode + "var nodeNext = document.createElement('" + nodeNext.nodeName + "');nodeNext.innerHTML='" + nodeNext.innerHTML + "';parent.replaceChild(nodeNext, this);var prevChild=nodeNext;alert(prevChild.outerHTML);";
 	}
 	
-	var prevChild = nodeNext;
+	prevChild = nodeNext;
 	for(var i = nChildren - 2; i >= 0; i--){
 		nodeNext = rangeChildren[i];
 		switch(rangeChildren[i].nodeType){
-			case 1:
-			rangeCode = rangeCode + "nodeNext = document.createTextNode('" + nodeNext.data + "');parent.inserBefore(nodeNext, prevChild);prevChild = nodeNext;";
-			prevChild = nodeNext;			
+			case 3:
+			rangeCode = rangeCode + "nodeNext = document.createTextNode('" + nodeNext.data + "');parent.insertBefore(nodeNext, prevChild);prevChild = nodeNext;alert(prevChild.data);";
+			rangeCode = rangeCode 
+			+ "if(prevChild.nextSibling.nodeType==3){"
+			+ 	"prevChild.nextSibling.data = prevChild.data + prevChild.nextSibling.data;"
+			+	"prevChild = prevChild.nextSibling;"
+			+	"parent.removeChild(nodeNext);"
+			+ "}";
+			prevChild = nodeNext;
 			break;
 
-			case 3:
-			rangeCode = rangeCode + "nodeNext = document.createElement('" + nodeNext.nodeName + "');nodeNext.outerHTML='" + nodeNext.outerHTML + "';parent.inserBefore(nodeNext, prevChild);prevChild = nodeNext;";
-			prevChild = nodeNext;
+			default:
+			rangeCode = rangeCode + "nodeNext = document.createElement('" + nodeNext.nodeName + "');nodeNext.innerHTML='" + nodeNext.innerHTML + "';parent.insertBefore(nodeNext, prevChild);prevChild = nodeNext;alert(prevChild.outerHTML);";
+			prevChild = nodeNext;			
 			break;
 		}
 	}
+	rangeCode = rangeCode 
+	+ "if(prevChild.previousSibling.nodeType==3){"
+	+ 	"prevChild.previousSibling.data = prevChild.previousSibling.data + prevChild.data;"
+	+	"parent.removeChild(prevChild);"
+	+ "}";
+
 	return rangeCode;
 }
 
