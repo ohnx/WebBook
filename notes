@@ -97,3 +97,5 @@ Known Bugs
 [Solved]
 
 	after adding a script to the document itself, there is no need of creating new element or text nodes and copying the structure of the original ones to the new ones. So there is need of copying anything, innerHTML or outerHTML or anything. Now the original nodes are being replaced directly by the function inside the script.
+	
+17. A lot of error handling and robustness needs to be added.

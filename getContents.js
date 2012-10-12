@@ -16,7 +16,7 @@ function highlightPage(bgResponse){
 	var wbels = wbels_str.split("|");
 	// since wbels_str ends with a "|", the last element would be blank
 	wbels.pop();
-	//alert("number of elements : " + wbels.length);
+	alert("number of elements : " + wbels.length);
 	
 	var docText = document.body.innerHTML;
 	// using the occurence information, find the starting and ending index positions of each highlight //

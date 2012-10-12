@@ -122,7 +122,8 @@ function highlightTree(root){
 		return;
 	}
 	
-	if(start && !end && (root.nodeName == "P" || root.nodeName == "DIV")){
+//	if(start && !end && (root.nodeName == "P" || root.nodeName == "DIV")){
+	if(start && !end && root.nodeType != 3){
 		//alert('breaking at beginning of a new ' + root.nodeName + ' and highlighting curRange | curRange endContainer : ' + curRange.endContainer.nodeName);
 		if (!curRange.collapsed){
 			highlightRange(curRange);
@@ -302,7 +303,7 @@ function sendData(){
 	// 2. which occurence of that text (the same text may appear more than once) is the required one
 	
 	var wbels_str = "";
-	//alert("number of highlighted elements : " + wbels.length);
+	alert("number of highlighted elements : " + wbels.length);
 	for(var i = 0; i < wbels.length; i++){
 		var wbel = wbels[i];
 		var wbel_text = wbel.innerHTML;
@@ -388,13 +389,13 @@ rmwbscript.innerHTML =
   	+	"\tvar parent = elem.parentNode;\n"
 	+	"\tvar elemChildren = elem.childNodes;\n"
 	+	"\tvar nChildren = elemChildren.length;\n"
-	+	"\t//alert('number of children ' + nChildren);\n"
+	+	"\t//alert('number of children : ' + nChildren);\n"
 	+	"\tvar nodeNext = elemChildren[nChildren - 1];\n"
 	+	"\tif (nodeNext.nodeType == 3){\n"
 		+	"\t\tparent.replaceChild(nodeNext, elem);\n"
 		+	"\t\tvar prevChild = nodeNext;\n"
 		+	"\t\t//alert(prevChild.data);\n"
-		+	"\t\tif(prevChild.nextSibling.nodeType==3){\n"
+		+	"\t\tif(prevChild.nextSibling && prevChild.nextSibling.nodeType==3){\n"
 		+ 		"\t\t\tprevChild.nextSibling.data = prevChild.data + prevChild.nextSibling.data;\n"
 		+		"\t\t\tprevChild = prevChild.nextSibling;\n"
 		+		"\t\t\tparent.removeChild(nodeNext);\n"
