@@ -183,11 +183,12 @@ function highlightRange(range){
 	var markerEl = document.createElement("span");
 	markerEl.id = "WebBook" + range.startOffset + "#" + range.endOffset;
 	markerEl.setAttribute('name', "WebBookElement");
-	var rangeHTML = getRangeHTML(range);
-	var onclickCode = getRangeCode(range);
-	alert(onclickCode);
+	//var rangeHTML = getRangeHTML(range);
+	//var onclickCode = getRangeCode(range);
+	//alert(onclickCode);
 	//var onclickCode = "var nodeText = document.createTextNode('" + range.toString() + "'); this.parentNode.replaceChild(nodeText, this)";
 	//alert(onclickCode);
+	var onclickCode = "removeWebBookElement(this);";
 	markerEl.setAttribute('onclick', onclickCode);
 	markerEl.style.background = "red";
 	markerEl.style.removeProperty('background-position');
@@ -226,7 +227,7 @@ function getRangeCode(range){
 	var nChildren = rangeChildren.length;
 	var nodeNext = rangeChildren[nChildren - 1];
 	if (nodeNext.nodeType == 3){
-		rangeCode = rangeCode 
+		rangeCode = rangeCode
 		+ "var nodeNext = document.createTextNode('" + nodeNext.data + "');parent.replaceChild(nodeNext, this);var prevChild=nodeNext;alert(prevChild.data);"
 		rangeCode = rangeCode 
 		+ "if(prevChild.nextSibling.nodeType==3){"
@@ -372,7 +373,67 @@ function performAction(e){
 
 }
 
+// add the required listeners to the document //
 document.addEventListener('keydown', keyDownHandler);
 document.addEventListener('keyup', keyUpHandler);
 document.addEventListener('keypress', performAction);
 //alert('keypress listener added');
+
+// Add script for removal of WebBookElements //
+var rmwbscript = document.createElement('script');
+rmwbscript.setAttribute('type', 'text/javascript');
+rmwbscript.innerHTML = 
+  "function removeWebBookElement(elem){\n"
+  	+	"\t//alert('removeWebBookElement() called');\n"
+  	+	"\tvar parent = elem.parentNode;\n"
+	+	"\tvar elemChildren = elem.childNodes;\n"
+	+	"\tvar nChildren = elemChildren.length;\n"
+	+	"\t//alert('number of children ' + nChildren);\n"
+	+	"\tvar nodeNext = elemChildren[nChildren - 1];\n"
+	+	"\tif (nodeNext.nodeType == 3){\n"
+		+	"\t\tparent.replaceChild(nodeNext, elem);\n"
+		+	"\t\tvar prevChild = nodeNext;\n"
+		+	"\t\t//alert(prevChild.data);\n"
+		+	"\t\tif(prevChild.nextSibling.nodeType==3){\n"
+		+ 		"\t\t\tprevChild.nextSibling.data = prevChild.data + prevChild.nextSibling.data;\n"
+		+		"\t\t\tprevChild = prevChild.nextSibling;\n"
+		+		"\t\t\tparent.removeChild(nodeNext);\n"
+		+ 	"\t\t}\n"
+	+	"\t}\n"
+	+	"\telse{\n"
+		+	"\t\tparent.replaceChild(nodeNext, elem);\n"
+		+	"\t\tvar prevChild=nodeNext;\n"
+		+	"\t\t//alert(prevChild.outerHTML);\n"
+	+	"\t}\n"
+	
+	+	"\tfor(var i = nChildren - 2; i >= 0; i--){\n"
+		+	"\t\tnodeNext = elemChildren[i];\n"
+		+	"\t\tswitch(elemChildren[i].nodeType){\n"
+			+	"\t\t\tcase 3:\n"
+			+	"\t\t\tparent.insertBefore(nodeNext, prevChild);\n"
+			+	"\t\t\tprevChild = nodeNext;\n"
+			+	"\t\t\t//alert(prevChild.data);\n"
+			+	"\t\t\tif(prevChild.nextSibling.nodeType==3){\n"
+				+ 	"\t\t\t\tprevChild.nextSibling.data = prevChild.data + prevChild.nextSibling.data;\n"
+				+	"\t\t\t\tprevChild = prevChild.nextSibling;\n"
+				+	"\t\t\t\tparent.removeChild(nodeNext);\n"
+			+	"\t\t\t}\n"
+			+	"\t\t\tbreak;\n"
+
+			+	"\t\t\tdefault:\n"
+			+	"\t\t\tparent.insertBefore(nodeNext, prevChild);\n"
+			+	"\t\t\tprevChild = nodeNext;\n"
+			+	"\t\t\t//alert(prevChild.outerHTML);\n"
+			+	"\t\t\tbreak;\n"
+		+	"\t\t}\n"
+	+	"\t}\n"
+	
+	+	"\tif(prevChild.previousSibling.nodeType==3){\n"
+		+ 	"\t\tprevChild.previousSibling.data = prevChild.previousSibling.data + prevChild.data;\n"
+		+	"\t\tparent.removeChild(prevChild);\n"
+	+	"\t}\n"
++ "}";
+
+//alert(rmwbscript.outerHTML);
+document.head.appendChild(rmwbscript);
+

@@ -81,3 +81,19 @@ Known Bugs
 13. text inside <input>, <select> and <textarea> can still not be selected using window.getSelection()
 
 14. currently, clicking on a highlight replaces that span element by a text node the contents of which are range.toString(). But range.toString() gives a plaintext string whereas the contents inside the highlight's span tag may not be just text. It may have various children like formatting tags, text nodes, other span tags etc. And the highlight must be replaced by exactly that content on its removal.
+
+[Solved]
+	
+	A javascript code for the onclick event is generated when the range is being highlighted. This code replaces the WebBookElement(this) by all its children nodes in the current sequence.
+
+15. Adding the code to each and every node makes the document heavy. So better add a script to the document which contains a function to perform this task
+
+[Solved]
+	
+	solved by adding a script with the required function
+	
+16. But still only the innerHTML of the element children nodes is being replicated, whereas we need to replicate the entire outerHTML as the element child node may have attributes as well.
+
+[Solved]
+
+	after adding a script to the document itself, there is no need of creating new element or text nodes and copying the structure of the original ones to the new ones. So there is need of copying anything, innerHTML or outerHTML or anything. Now the original nodes are being replaced directly by the function inside the script.
